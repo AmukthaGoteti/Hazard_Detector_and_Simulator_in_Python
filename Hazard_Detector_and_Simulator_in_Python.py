@@ -1,21 +1,9 @@
-"""
-Smart Hazard Detector and Simulator
------------------------------------
-
-Features:
-- User-input Boolean expression & variables
-- Truth table generation (optional display)
-- Static-0, Static-1, Dynamic hazard detection
-- Transition-level simulation with unequal delays
-- Consensus-term suggestions
-- Optional waveform visualization
-"""
-
 import itertools
 from typing import List, Tuple
-import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+
+
+# ---------------- Boolean Logic ---------------- #
 
 class BooleanFunction:
     def __init__(self, expression: str, variables: List[str]):
@@ -24,8 +12,11 @@ class BooleanFunction:
         self.compiled = compile(expression, "<expr>", "eval")
 
     def evaluate(self, values: Tuple[int, ...]) -> int:
-        env = dict(zip(self.variables, map(bool, values)))
+        env = {v: bool(values[i]) for i, v in enumerate(self.variables)}
         return int(eval(self.compiled, {}, env))
+
+
+# ---------------- Truth Table ---------------- #
 
 class TruthTable:
     def __init__(self, logic: BooleanFunction):
@@ -34,40 +25,51 @@ class TruthTable:
 
     def _generate(self):
         return {
-            values: self.logic.evaluate(values)
-            for values in itertools.product([0, 1], repeat=len(self.logic.variables))
+            inputs: self.logic.evaluate(inputs)
+            for inputs in itertools.product([0, 1], repeat=len(self.logic.variables))
         }
 
     def display(self):
-        print("\nTruth Table:")
-        header = " ".join(self.logic.variables) + " | F"
-        print(header)
-        print("-" * len(header))
-        for inputs, output in self.table.items():
-            print(" ".join(map(str, inputs)), "|", output)
+        print("\nTruth Table")
+        print(" ".join(self.logic.variables), "| F")
+        print("-" * (4 * len(self.logic.variables)))
+        for k, v in self.table.items():
+            print(" ".join(map(str, k)), "|", v)
+
+
+# ---------------- Transition Simulator ---------------- #
 
 class TransitionSimulator:
     def __init__(self, logic: BooleanFunction):
         self.logic = logic
 
-    @staticmethod
-    def is_adjacent(a, b):
-        return sum(x != y for x, y in zip(a, b)) == 1
+    def simulate_all_paths(self, start, end):
+        diff = [i for i in range(len(start)) if start[i] != end[i]]
+        waves = []
 
-    def simulate(self, start, end):
-        idx = next(i for i in range(len(start)) if start[i] != end[i])
-        intermediate = list(start)
-        intermediate[idx] = end[idx]
+        for order in itertools.permutations(diff):
+            state = list(start)
+            wave = [self.logic.evaluate(tuple(state))]
 
-        return [
-            self.logic.evaluate(state)
-            for state in (start, tuple(intermediate), end)
-        ]
+            for idx in order:
+                state[idx] = end[idx]
+                wave.append(self.logic.evaluate(tuple(state)))
+
+            waves.append(wave)
+
+        return waves
+
+
+# ---------------- Hazard Detection ---------------- #
 
 class HazardDetector:
     def __init__(self, truth_table: TruthTable, simulator: TransitionSimulator):
         self.table = truth_table.table
         self.simulator = simulator
+
+    @staticmethod
+    def hamming_distance(a, b):
+        return sum(x != y for x, y in zip(a, b))
 
     @staticmethod
     def toggle_count(wave):
@@ -78,20 +80,30 @@ class HazardDetector:
         states = list(self.table.keys())
 
         for s1, s2 in itertools.combinations(states, 2):
-            if not self.simulator.is_adjacent(s1, s2):
-                continue
-
-            wave = self.simulator.simulate(s1, s2)
+            hd = self.hamming_distance(s1, s2)
             v1, v2 = self.table[s1], self.table[s2]
 
-            if v1 == v2 and any(x != v1 for x in wave):
-                hazard = "Static-1 Hazard" if v1 else "Static-0 Hazard"
-                hazards.append((s1, s2, hazard, wave))
+            waves = self.simulator.simulate_all_paths(s1, s2)
 
-            elif v1 != v2 and self.toggle_count(wave) > 1:
-                hazards.append((s1, s2, "Dynamic Hazard", wave))
+            # ---------- STATIC HAZARDS ----------
+            if hd == 1 and v1 == v2:
+                for wave in waves:
+                    if self.toggle_count(wave) >= 1:
+                        htype = "Static-1 Hazard" if v1 == 1 else "Static-0 Hazard"
+                        hazards.append((s1, s2, htype, wave))
+                        break
+
+            # ---------- DYNAMIC HAZARDS ----------
+            if hd >= 2 and v1 != v2:
+                for wave in waves:
+                    if self.toggle_count(wave) > 1:
+                        hazards.append((s1, s2, "Dynamic Hazard", wave))
+                        break
 
         return hazards
+
+
+# ---------------- Consensus Term ---------------- #
 
 class ConsensusGenerator:
     @staticmethod
@@ -102,6 +114,9 @@ class ConsensusGenerator:
                 terms.append(var if start[i] else f"~{var}")
         return " & ".join(terms) if terms else None
 
+
+# ---------------- Waveform Plot ---------------- #
+
 def plot_waveform(wave, title):
     plt.figure()
     plt.step(range(len(wave)), wave, where="post")
@@ -110,51 +125,54 @@ def plot_waveform(wave, title):
     plt.ylabel("Output")
     plt.title(title)
     plt.grid(True)
-    plt.show(block=True)
+    plt.show()
+
+
+# ---------------- User Input ---------------- #
 
 def get_user_input():
     print("\n--- Hazard Detector Input ---\n")
-    expr = input("Enter Boolean expression (use &, |, ~): ").strip()
-    variables = input("Enter variables (comma-separated): ").split(",")
-    variables = [v.strip() for v in variables]
+    expr = input("Enter Boolean expression (& | ~): ").strip()
+    variables = [v.strip() for v in input("Variables (comma-separated): ").split(",")]
 
     show_tt = input("Show truth table? (y/n): ").lower() == "y"
-    show_wave = input("Show waveform for hazards? (y/n): ").strip().lower() in ("y", "yes")
+    show_wave = input("Show waveform? (y/n): ").lower() == "y"
 
     return expr, variables, show_tt, show_wave
+
+
+# ---------------- Main ---------------- #
 
 def main():
     expr, variables, show_tt, show_wave = get_user_input()
 
     logic = BooleanFunction(expr, variables)
-    truth_table = TruthTable(logic)
-    simulator = TransitionSimulator(logic)
-    detector = HazardDetector(truth_table, simulator)
+    tt = TruthTable(logic)
+    sim = TransitionSimulator(logic)
+    detector = HazardDetector(tt, sim)
 
     if show_tt:
-        truth_table.display()
+        tt.display()
 
     hazards = detector.detect()
 
-    print("\n--- Hazard Analysis Result ---\n")
+    print("\n--- Hazard Analysis ---\n")
 
     if not hazards:
-        print("✔ The given logic is HAZARD-FREE.")
+        print("✔ Logic is HAZARD-FREE")
         return
 
-    print(f"⚠ Hazardous Logic Detected ({len(hazards)} case(s)):\n")
-
-    for i, (start, end, htype, wave) in enumerate(hazards, 1):
+    for i, (s1, s2, htype, wave) in enumerate(hazards, 1):
         print(f"Hazard {i}: {htype}")
-        print(f"Transition: {start} → {end}")
-        print(f"Waveform values: {wave}")
+        print(f"Transition: {s1} → {s2}")
+        print(f"Waveform: {wave}")
 
-        fix = ConsensusGenerator.suggest(start, end, variables)
+        fix = ConsensusGenerator.suggest(s1, s2, variables)
         if fix:
             print(f"Suggested consensus term: {fix}")
 
         if show_wave:
-            plot_waveform(wave, f"{htype}: {start} → {end}")
+            plot_waveform(wave, f"{htype}: {s1} → {s2}")
 
         print("-" * 60)
 
