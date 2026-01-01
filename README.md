@@ -137,8 +137,8 @@ python main.py
 ## 🧪 Example Input
 
 ```text
-Enter Boolean expression (& | ~): (A & B) | (~A & C)
-Variables (comma-separated): A,B,C
+Enter Boolean expression (& | ~): (~A & ~B) | (A & ~C)
+Variables (comma-separated): A, B, C
 Show truth table? (y/n): y
 Show waveform? (y/n): y
 ```
@@ -148,12 +148,12 @@ Show waveform? (y/n): y
 ## 📊 Sample Output
 
 ```text
-Hazard 2: Essential Hazard
-Transition: (0, 1, 1) → (1, 0, 1)
-Confidence: 100%
+Hazard 1: Static-1 Hazard
+Transition: (0, 0, 0) → (0, 0, 1)
+Confidence: 35%
 Severity (toggles): 2
-Explanation: Unavoidable delay dependency.
-Suggested Consensus Term: ~B
+Explanation: OR-reconvergent path delay mismatch.
+Suggested Consensus Term: ~A & ~B
 ```
 
 ---
