@@ -1,21 +1,27 @@
 import itertools
 import random
-from typing import List, Tuple, Dict
+from typing import List, Tuple
 import matplotlib.pyplot as plt
 
 # ============================================================
-# Boolean Function Engine
+# Boolean Function Engine (Hybrid SOP)
 # ============================================================
 
 class BooleanFunction:
     def __init__(self, expression: str, variables: List[str]):
-        self.expression = expression
+        self.expression = expression.replace(" ", "")
         self.variables = variables
-        self.compiled = compile(expression, "<expr>", "eval")
+        self.terms = self.expression.split("|")  # SOP terms
+
+    def eval_term(self, term: str, values: Tuple[int, ...]) -> int:
+        env = dict(zip(self.variables, map(bool, values)))
+        return int(eval(term, {}, env))
 
     def evaluate(self, values: Tuple[int, ...]) -> int:
-        env = dict(zip(self.variables, map(bool, values)))
-        return int(eval(self.compiled, {}, env))
+        return int(any(self.eval_term(t, values) for t in self.terms))
+
+    def evaluate_inverted(self, values: Tuple[int, ...]) -> int:
+        return int(not self.evaluate(values))
 
 
 # ============================================================
@@ -42,27 +48,13 @@ class TruthTable:
 
 
 # ============================================================
-# Delay Model
-# ============================================================
-
-class DelayModel:
-    def __init__(self, variables: List[str], delay_range=(1, 5)):
-        self.delays = {
-            v: random.randint(*delay_range) for v in variables
-        }
-
-    def delay_of(self, variable):
-        return self.delays[variable]
-
-
-# ============================================================
-# Transition Simulator (Gate-Level)
+# Transition Simulator (Hybrid Timing)
 # ============================================================
 
 class TransitionSimulator:
-    def __init__(self, logic: BooleanFunction, delay_model: DelayModel):
+    def __init__(self, logic: BooleanFunction):
         self.logic = logic
-        self.delay_model = delay_model
+        self.term_delay_range = (1, 5)
 
     def simulate(self, start, end):
         diff = [i for i in range(len(start)) if start[i] != end[i]]
@@ -71,13 +63,33 @@ class TransitionSimulator:
         for order in itertools.permutations(diff):
             t = 0
             state = list(start)
-            timeline = [(t, self.logic.evaluate(tuple(state)))]
+
+            # Independent delays per SOP term
+            term_delays = {
+                term: random.randint(*self.term_delay_range)
+                for term in self.logic.terms
+            }
+
+            timeline = [(0, self.logic.evaluate(tuple(state)))]
 
             for idx in order:
-                var = self.logic.variables[idx]
-                t += self.delay_model.delay_of(var)
                 state[idx] = end[idx]
-                timeline.append((t, self.logic.evaluate(tuple(state))))
+
+                events = []
+                for term, d in term_delays.items():
+                    val = self.logic.eval_term(term, tuple(state))
+                    events.append((t + d, val))
+
+                events.sort()
+                current = timeline[-1][1]
+
+                for time, _ in events:
+                    out = int(any(v for tm, v in events if tm <= time))
+                    if out != current:
+                        current = out
+                        timeline.append((time, current))
+
+                t = timeline[-1][0]
 
             timelines.append(timeline)
 
@@ -85,13 +97,14 @@ class TransitionSimulator:
 
 
 # ============================================================
-# Hazard Detector (Professional Grade)
+# Hazard Detector (Static-0 FIXED)
 # ============================================================
 
 class HazardDetector:
     def __init__(self, tt: TruthTable, simulator: TransitionSimulator):
         self.tt = tt.table
         self.sim = simulator
+        self.logic = simulator.logic
 
     @staticmethod
     def hamming(a, b):
@@ -101,6 +114,15 @@ class HazardDetector:
     def toggle_count(wave):
         return sum(wave[i][1] != wave[i - 1][1] for i in range(1, len(wave)))
 
+    @staticmethod
+    def is_static_glitch(wave, expected):
+        outputs = [y for _, y in wave]
+        return (
+            outputs[0] == expected and
+            outputs[-1] == expected and
+            any(o != expected for o in outputs)
+        )
+
     def detect(self, monte_carlo_runs=20):
         hazards = []
 
@@ -108,24 +130,46 @@ class HazardDetector:
             hd = self.hamming(s1, s2)
             v1, v2 = self.tt[s1], self.tt[s2]
 
-            glitch_count = 0
+            if hd == 1 and v1 != v2:
+                continue
+
+            glitch_runs = 0
             worst_wave = None
             max_toggles = 0
 
             for _ in range(monte_carlo_runs):
                 waves = self.sim.simulate(s1, s2)
+                run_glitch = False
+
                 for w in waves:
                     toggles = self.toggle_count(w)
-                    if toggles > 0:
-                        glitch_count += 1
+
+                    if hd == 1 and v1 == v2:
+                        if v1 == 1:
+                            if self.is_static_glitch(w, 1):
+                                run_glitch = True
+                        else:
+                            # Static-0 via inverted logic
+                            inv_wave = [(t, int(not y)) for t, y in w]
+                            if self.is_static_glitch(inv_wave, 1):
+                                run_glitch = True
+
+                    elif hd >= 2 and toggles >= 2:
+                        run_glitch = True
+
+                    if run_glitch:
                         if toggles > max_toggles:
                             max_toggles = toggles
                             worst_wave = w
+                        break
 
-            if glitch_count == 0:
+                if run_glitch:
+                    glitch_runs += 1
+
+            if glitch_runs == 0:
                 continue
 
-            confidence = glitch_count / monte_carlo_runs
+            confidence = glitch_runs / monte_carlo_runs
 
             if hd == 1 and v1 == v2:
                 htype = "Static-1 Hazard" if v1 == 1 else "Static-0 Hazard"
@@ -150,17 +194,16 @@ class HazardDetector:
 
     @staticmethod
     def _explain(htype):
-        explanations = {
-            "Static-1 Hazard": "Unequal delays in OR reconvergent paths.",
-            "Static-0 Hazard": "Unequal delays in AND reconvergent paths.",
-            "Dynamic Hazard": "Multiple transitions before stabilization.",
+        return {
+            "Static-1 Hazard": "OR-reconvergent path delay mismatch.",
+            "Static-0 Hazard": "AND-reconvergent path delay mismatch (detected via inversion).",
+            "Dynamic Hazard": "Multiple output transitions before stabilization.",
             "Essential Hazard": "Unavoidable delay dependency."
-        }
-        return explanations.get(htype, "Unknown behavior")
+        }.get(htype, "Unknown behavior")
 
 
 # ============================================================
-# Consensus Term Generator
+# Consensus Generator
 # ============================================================
 
 class ConsensusGenerator:
@@ -206,8 +249,7 @@ def main():
 
     logic = BooleanFunction(expr, variables)
     tt = TruthTable(logic)
-    delay_model = DelayModel(variables)
-    sim = TransitionSimulator(logic, delay_model)
+    sim = TransitionSimulator(logic)
     detector = HazardDetector(tt, sim)
 
     if show_tt:
