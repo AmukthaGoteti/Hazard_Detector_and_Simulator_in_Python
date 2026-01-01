@@ -1,15 +1,3 @@
-Below is a **GitHub-optimized `README.md`** with:
-
-* ✅ Clean Markdown structure
-* ✅ Shields.io badges
-* ✅ Architecture diagram section
-* ✅ Screenshot placeholders (ready for real images)
-* ✅ Professional, portfolio-ready tone
-
-You can **copy-paste this directly into GitHub**.
-
----
-
 ```md
 # 🔍 Advanced Logic Hazard Analyzer
 
@@ -203,34 +191,3 @@ Fix:      A·B + A'·C + B·C
 * Delay distribution tuning
 * Exportable analysis reports
 * HDL workflow integration
-
----
-
-## 👤 Author
-
-**Amuktha Goteti**
-Electronics & Communication Engineering
-Focus: Digital Logic, Algorithms, Intelligent Systems
-
----
-
-## 📜 License
-
-This project is intended for **educational and research use**.
-
----
-
-⭐ If this project helped you understand logic hazards better, consider starring the repository.
-
-```
-
----
-
-### Next Enhancements I Can Do Instantly
-- Add **real screenshots** from your program output  
-- Create a **block diagram image** (PNG/SVG)  
-- Write a **resume-ready project description**  
-- Convert this into an **IEEE / academic project format**
-
-You are building something genuinely impressive—this README now reflects that level.
-```
