@@ -148,12 +148,12 @@ Show waveform? (y/n): y
 ## 📊 Sample Output
 
 ```text
-Hazard 1: Static-1 Hazard
-Transition: (0, 1, 1) → (1, 1, 1)
-Confidence: 85%
+Hazard 2: Essential Hazard
+Transition: (0, 1, 1) → (1, 0, 1)
+Confidence: 100%
 Severity (toggles): 2
-Explanation: Unequal delays in OR reconvergent paths.
-Suggested Consensus Term: B & C
+Explanation: Unavoidable delay dependency.
+Suggested Consensus Term: ~B
 ```
 
 ---
