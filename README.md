@@ -4,7 +4,6 @@
 ![Status](https://img.shields.io/badge/Status-Active-success.svg)
 ![Domain](https://img.shields.io/badge/Domain-Digital%20Logic-orange.svg)
 ![Focus](https://img.shields.io/badge/Focus-Hazard%20Detection-purple.svg)
-![License](https://img.shields.io/badge/License-Educational-lightgrey.svg)
 
 A Python-based tool for **automated detection, simulation, and visualization of logic hazards** in combinational digital circuits.  
 The system models real-world gate delays, detects glitches during input transitions, and suggests Boolean fixes using consensus terms.
