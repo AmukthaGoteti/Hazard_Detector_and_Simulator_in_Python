@@ -1,116 +1,186 @@
-# 💬 Emotional Support Chatbot (Python)
+# 🔍 Hazard Detector and Simulator in Python
 
-A **rule-based emotional support chatbot** built using Python that engages in natural conversation, recognizes emotional cues, and responds with empathetic, supportive, and encouraging messages.
+![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
+![Status](https://img.shields.io/badge/Status-Active-success.svg)
+![Domain](https://img.shields.io/badge/Domain-Digital%20Logic-orange.svg)
+![Focus](https://img.shields.io/badge/Focus-Hazard%20Detection-purple.svg)
+![License](https://img.shields.io/badge/License-Educational-lightgrey.svg)
 
-This project demonstrates **string processing, regular expressions, control flow, and conversational logic**, making it ideal for beginners and for showcasing a meaningful Python mini-project.
-
----
-
-## 🌟 Features
-
-* Friendly greetings and farewells
-* Emotion-aware responses (sad, happy, anxious, lonely, stressed, etc.)
-* Motivation and encouragement support
-* Study, career, and interview guidance
-* Casual conversation (jokes, hobbies, travel, food, music, sports)
-* Simple rule-based Natural Language Processing using **regex**
-* Randomized responses for natural interaction
+A Python-driven framework designed for **automatic detection, simulation, and visualization of logic hazards** in combinational digital circuits.
+The analyzer incorporates realistic gate-delay modeling, identifies glitches during input transitions, and recommends Boolean corrections using consensus terms.
 
 ---
 
-## 🛠️ Technologies Used
+## 📌 Problem Statement
 
-* **Python 3**
-* **Regular Expressions (`re`)**
-* **Random module**
+A Boolean expression may be logically sound, yet **unequal propagation delays** in real hardware can still introduce transient output glitches—commonly referred to as **logic hazards**.
+
+Traditional manual analysis:
+
+* Does not scale well
+* Overlooks timing-induced failures
+* Becomes error-prone as complexity increases
+
+This project delivers a **fully automated, timing-aware approach** to hazard analysis.
 
 ---
 
-## 📂 Project Structure
+## 🚀 Core Capabilities
 
-```bash
-├── chatbot.py
-└── README.md
+* Custom Boolean expression input
+* Complete truth table generation
+* Randomized gate-delay assignment
+* Gate-level transition simulation
+* Automated identification of:
+
+  * Static hazards
+  * Dynamic hazards
+  * Essential hazards
+* Hazard severity evaluation via toggle counts
+* Automatic consensus-term recommendations
+* Optional waveform-based visualization
+* Clean, modular, and extensible design
+
+---
+
+## 🧠 Hazard Classification
+
+| Hazard Type   | Description                                                |
+| ------------- | ---------------------------------------------------------- |
+| **Static**    | Output momentarily changes despite a stable expected value |
+| **Dynamic**   | Output oscillates multiple times before settling           |
+| **Essential** | Hazard caused by unavoidable delay dependencies            |
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+User Input
+│
+▼
+Boolean Expression Engine
+│
+▼
+Truth Table Generator
+│
+▼
+Delay Modeling Module
+│
+▼
+Transition Simulator
+│
+▼
+Hazard Detection Engine
+│
+▼
+Fix Recommendations + Waveform Output
 ```
 
 ---
 
-## ▶️ How to Run
+## 📂 Repository Layout
 
-### Prerequisites
-
-* Python **3.9+** recommended
-
-### Run the Chatbot
-
-```bash
-python chatbot.py
+```
+advanced-logic-hazard-analyzer/
+│
+├── Hazard_Detector_and_Simulator_in_Python.py   # End-to-end hazard analysis engine
+├── README.md                                   # Project documentation
 ```
 
 ---
 
-## 🧠 How It Works
+## 🛠️ Technology Stack
 
-### Pattern Matching
-
-* User input is matched against predefined **regex patterns**
-* Each pattern maps to a list of suitable responses
-* A random response is selected to keep conversations natural
-
-### Flow
-
-1. User enters a message
-2. Input is converted to lowercase
-3. Regex patterns are checked using `re.search()`
-4. A relevant response is returned
-5. Chat continues until the user types **bye** or **goodbye**
+* Python 3.x
+* Boolean Algebra
+* Digital Logic Design Principles
+* Monte Carlo–based Delay Simulation
+* Matplotlib for waveform visualization
 
 ---
 
-## 🗣️ Example Interaction
+## ▶️ Quick Start
+
+### 1️⃣ Install Requirements
+
+```bash
+pip install matplotlib
+```
+
+### 2️⃣ Execute the Analyzer
+
+```bash
+python main.py
+```
+
+---
+
+## 🧪 Sample Input
 
 ```text
-You: I feel very stressed today
-Bot: Burnout is a sign you’ve been pushing hard. Rest matters too.
-
-You: tell me a joke
-Bot: Why do programmers prefer dark mode? Because light attracts bugs!
-
-You: goodbye
-Bot: Goodbye! Take care.
+Enter Boolean expression (& | ~): (~A & ~B) | (A & ~C)
+Variables (comma-separated): A, B, C
+Show truth table? (y/n): y
+Show waveform? (y/n): y
 ```
 
 ---
 
-## 🎯 Learning Outcomes
+## 📊 Example Output
 
-By building this project, you will learn:
-
-* Regex-based intent recognition
-* Rule-based chatbot design
-* Handling emotional and conversational states
-* Clean function-based Python structure
-* Randomized response generation
-
----
-
-## 🚀 Possible Enhancements
-
-* GUI using **Tkinter**
-* Conversation memory
-* Logging chat history
-* Voice input/output
-* NLP libraries (NLTK / spaCy)
-* Sentiment analysis
-* Web or mobile integration
+```text
+Hazard 1: Static-1 Hazard
+Transition: (0, 0, 0) → (0, 0, 1)
+Confidence: 35%
+Severity (toggles): 2
+Explanation: OR reconvergent path delay mismatch
+Suggested Consensus Term: ~A & ~B
+```
 
 ---
 
-## ⚠️ Disclaimer
+## 📈 Waveform Analysis
 
-This chatbot is **not a replacement for professional mental health support**.
-It is intended for **educational and conversational purposes only**.
+> Output glitches are visualized using step-based waveforms to enable precise timing inspection.
+
+**Example:**
+Waveform plots clearly expose transient behavior during critical input transitions.
 
 ---
 
-**Happy coding and thoughtful conversations! 🌱**
+## 🧩 Hazard Elimination Strategy
+
+To remove static hazards without altering logic functionality, the analyzer proposes **consensus terms**.
+
+**Illustration**
+
+```text
+Original: A·B + A'·C
+Improved: A·B + A'·C + B·C
+```
+
+---
+
+## 🎯 What Makes This Project Distinct
+
+* Captures **real-world timing behavior**, not idealized logic
+* Automates a traditionally manual verification process
+* Connects digital logic theory with practical hardware concerns
+* Well-suited for:
+
+  * ECE academic projects
+  * Hardware verification practice
+  * Research groundwork
+  * Strong technical portfolios and interviews
+
+---
+
+## 🔮 Planned Enhancements
+
+* SOP and POS canonical form support
+* Karnaugh map-based visualization
+* Gate-level netlist parsing
+* Configurable delay distributions
+* Exportable analysis reports
+* Integration with HDL-based workflows
