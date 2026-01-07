@@ -1,191 +1,116 @@
-# 🔍 Advanced Logic Hazard Analyzer
+# 💬 Emotional Support Chatbot (Python)
 
-![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
-![Status](https://img.shields.io/badge/Status-Active-success.svg)
-![Domain](https://img.shields.io/badge/Domain-Digital%20Logic-orange.svg)
-![Focus](https://img.shields.io/badge/Focus-Hazard%20Detection-purple.svg)
+A **rule-based emotional support chatbot** built using Python that engages in natural conversation, recognizes emotional cues, and responds with empathetic, supportive, and encouraging messages.
 
-A Python-based tool for **automated detection, simulation, and visualization of logic hazards** in combinational digital circuits.  
-The system models real-world gate delays, detects glitches during input transitions, and suggests Boolean fixes using consensus terms.
+This project demonstrates **string processing, regular expressions, control flow, and conversational logic**, making it ideal for beginners and for showcasing a meaningful Python mini-project.
 
 ---
 
-## 📌 Problem Overview
+## 🌟 Features
 
-Even when a Boolean function is logically correct, **unequal propagation delays** in hardware can cause unwanted output glitches known as **hazards**.
-
-Manual detection:
-- Does not scale
-- Misses timing-related failures
-- Becomes unreliable for complex logic
-
-This project provides a **timing-aware, automated solution**.
-
----
-
-## 🚀 Key Features
-
-- User-defined Boolean expression input
-- Exhaustive truth table generation
-- Randomized gate delay modeling
-- Gate-level transition simulation
-- Detection of:
-  - Static-1 hazards
-  - Static-0 hazards
-  - Dynamic hazards
-  - Essential hazards
-- Monte Carlo–based confidence scoring
-- Severity analysis using toggle counts
-- Automatic consensus-term suggestions
-- Optional waveform visualization
-- Modular and extensible architecture
-
----
-
-## 🧠 Hazard Types Explained
-
-| Hazard Type | Description |
-|------------|-------------|
-| **Static-1** | Output briefly drops from 1 during transition |
-| **Static-0** | Output briefly rises from 0 during transition |
-| **Dynamic** | Output toggles multiple times before stabilizing |
-| **Essential** | Hazard due to unavoidable delay dependencies |
-
----
-
-## 🏗️ System Architecture
-
-```
-
-User Input
-│
-▼
-Boolean Function Engine
-│
-▼
-Truth Table Generator
-│
-▼
-Random Delay Model
-│
-▼
-Transition Simulator
-│
-▼
-Hazard Detector
-│
-▼
-Fix Suggestions + Waveform Visualization
-
-```
-
----
-
-## 📂 Project Structure
-
-```
-
-advanced-logic-hazard-analyzer/
-│
-├── Hazard_Detector_and_Simulator_in_Python.py            # Complete hazard analysis system
-├── README.md          # Documentation
-
-````
+* Friendly greetings and farewells
+* Emotion-aware responses (sad, happy, anxious, lonely, stressed, etc.)
+* Motivation and encouragement support
+* Study, career, and interview guidance
+* Casual conversation (jokes, hobbies, travel, food, music, sports)
+* Simple rule-based Natural Language Processing using **regex**
+* Randomized responses for natural interaction
 
 ---
 
 ## 🛠️ Technologies Used
 
-- Python 3.x
-- Boolean Algebra
-- Digital Logic Design
-- Monte Carlo Simulation
-- Matplotlib (waveform visualization)
+* **Python 3**
+* **Regular Expressions (`re`)**
+* **Random module**
 
 ---
 
-## ▶️ Getting Started
-
-### 1️⃣ Install Dependencies
+## 📂 Project Structure
 
 ```bash
-pip install matplotlib
-````
+├── chatbot.py
+└── README.md
+```
 
-### 2️⃣ Run the Analyzer
+---
+
+## ▶️ How to Run
+
+### Prerequisites
+
+* Python **3.9+** recommended
+
+### Run the Chatbot
 
 ```bash
-python main.py
+python chatbot.py
 ```
 
 ---
 
-## 🧪 Example Input
+## 🧠 How It Works
+
+### Pattern Matching
+
+* User input is matched against predefined **regex patterns**
+* Each pattern maps to a list of suitable responses
+* A random response is selected to keep conversations natural
+
+### Flow
+
+1. User enters a message
+2. Input is converted to lowercase
+3. Regex patterns are checked using `re.search()`
+4. A relevant response is returned
+5. Chat continues until the user types **bye** or **goodbye**
+
+---
+
+## 🗣️ Example Interaction
 
 ```text
-Enter Boolean expression (& | ~): (~A & ~B) | (A & ~C)
-Variables (comma-separated): A, B, C
-Show truth table? (y/n): y
-Show waveform? (y/n): y
+You: I feel very stressed today
+Bot: Burnout is a sign you’ve been pushing hard. Rest matters too.
+
+You: tell me a joke
+Bot: Why do programmers prefer dark mode? Because light attracts bugs!
+
+You: goodbye
+Bot: Goodbye! Take care.
 ```
 
 ---
 
-## 📊 Sample Output
+## 🎯 Learning Outcomes
 
-```text
-Hazard 1: Static-1 Hazard
-Transition: (0, 0, 0) → (0, 0, 1)
-Confidence: 35%
-Severity (toggles): 2
-Explanation: OR-reconvergent path delay mismatch.
-Suggested Consensus Term: ~A & ~B
-```
+By building this project, you will learn:
 
----
-
-## 📈 Waveform Visualization
-
-> Output glitches are visualized using step plots for precise timing analysis.
-
-### Example Waveform
-
-![Waveform Example](Figure_1.png)
+* Regex-based intent recognition
+* Rule-based chatbot design
+* Handling emotional and conversational states
+* Clean function-based Python structure
+* Randomized response generation
 
 ---
 
-## 🧩 Hazard Fix Strategy
+## 🚀 Possible Enhancements
 
-The analyzer suggests **consensus terms** to eliminate static hazards without changing logic functionality.
-
-**Example**
-
-```text
-Original: A·B + A'·C
-Fix:      A·B + A'·C + B·C
-```
-
----
-
-## 🎯 Why This Project Stands Out
-
-* Models **real hardware timing**, not ideal logic
-* Automates a traditionally manual verification task
-* Bridges theory with practical digital design
-* Suitable for:
-
-  * ECE coursework
-  * Hardware verification learning
-  * Research foundations
-  * Portfolio & interview discussion
+* GUI using **Tkinter**
+* Conversation memory
+* Logging chat history
+* Voice input/output
+* NLP libraries (NLTK / spaCy)
+* Sentiment analysis
+* Web or mobile integration
 
 ---
 
-## 🔮 Future Enhancements
+## ⚠️ Disclaimer
 
-* SOP / POS canonical form support
-* Karnaugh map visualization
-* Gate-level netlist parsing
-* Delay distribution tuning
-* Exportable analysis reports
-* HDL workflow integration
+This chatbot is **not a replacement for professional mental health support**.
+It is intended for **educational and conversational purposes only**.
+
+---
+
+**Happy coding and thoughtful conversations! 🌱**
